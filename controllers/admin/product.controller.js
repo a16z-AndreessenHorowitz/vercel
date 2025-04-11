@@ -138,11 +138,12 @@ module.exports.createPost=async (req,res)=>{
 	 else{
 		req.bod.position=parseInt(req.body.position)
 	 }
-	 if(req.file){
-		req.body.thumbnail=`/uploads/${req.file.filename}`//express đi vào luôn thư mục public nên không dùng req.path được
-		}
+	//  if(req.file){
+	// 	req.body.thumbnail=`/uploads/${req.file.filename}`//express đi vào luôn thư mục public nên không dùng req.path được
+	// 	}
+		// chuyển code qua routes r
 	 
-		console.log(req.file)
+
 	const product=new Product(req.body)
 	await product.save()
 	//flash
