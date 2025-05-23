@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 require ( 'dotenv' ) .config ()
 const session = require('express-session');
 const flash = require('express-flash');
+const path=require('path')
 
 
 
@@ -31,6 +32,10 @@ app.use(express.static(`${__dirname}/public`));
 
 app.set('views', `${__dirname}/views`)
 app.set('view engine', 'pug')
+
+//time cme
+app.use('/tinymce', express.static(path.join(__dirname, 'node_modules', 'tinymce')));
+//time cme
 
 //flash
 app.use(session({

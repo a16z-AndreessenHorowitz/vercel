@@ -7,7 +7,7 @@ block main
   +alert(5000)
   h1(class="mb-4") Cập nhật sản phẩm
   //- div #{product} kiểm tra xem đổ ra giao diện chưa
-  form(action=`${prefixAdmin}/products/edit/${product.id}?_method=PATCH` id="form-edit-product" method="POST" enctype="multipart/form-data")
+  form(action=`${prefixAdmin}/products-category/edit/${records.id}?_method=PATCH` id="form-edit-product" method="POST" enctype="multipart/form-data")
 
     div(class="form-group")
       lable(for="title") Tiêu đề
@@ -15,71 +15,42 @@ block main
         class="form-control"
         id="title"
         name="title"
-        value=product.title
+        value=records.title
       )
     
     div(class="form-group")
-      lable(for="product_category_id") Danh mục
+      label(for="parent_id") Danh mục cha
       select(
+        name="parent_id"
+        id="parent_id"
         class="form-control"
-        id="product_category_id"
-        name="product_category_id"
       )
-        option(value="") Chọn danh mục
-        if(category)
-          +selectTree(category,1,product.product_category_id)
-
+        option(value="") --Chọn danh mục--
+        if(danhmuc)
+          +selectTree(danhmuc,1,records.parent_id)
 
     div(class="form-group")
-      label(for="desc") Mô tả
+      label(for="desc") Mô tả 
       textarea(type="text"
-        class="form-control textarea"
+        class="form-control"
         id="desc"
         name="description"
         rows="5"
         
-      ) #{product.description}
-    
-    div(class="form-group")
-      lable(for="price") Giá
-      input(type="number"
-        class="form-control"
-        id="price"
-        name="price"
-        value=product.price
-        min="0"
-      )
+      ) #{records.description}
 
-    div(class="form-group")
-      lable(for="price") % Giảm giá
-      input(type="number"
-        class="form-control"
-        id="discount"
-        name="discountPercentage"
-        value=product.discountPercentage
-        min="0"
-      )
-  
-    div(class="form-group")
-      lable(for="title") Số lượng
-      input(type="number"
-        class="form-control"
-        id="stock"
-        name="stock"
-        value=product.stock
-      )
 
     div(class="form-group" upload-image)
       lable(for="title") Ảnh
       input(type="file"
         class="form-control-file"
-        id="thubnail"
+        id="thumbnail"
         name="thumbnail"
         accept="image/*"
         upload-image-input
       )
       img(
-        src=product.thumbnail
+        src=records.thumbnail
         upload-image-review
         class="image-review"
       )
@@ -93,7 +64,7 @@ block main
       name="position"
       placeholder="Tự động tăng"
       min="1"
-      value=product.position
+      value=records.position
     )
 
     div(class="form-group form-check form-check-inline")
@@ -102,7 +73,7 @@ block main
         id="statusActive"
         name="status"
         value="active"
-        checked=(product.status=="active" ? true : false)
+        checked=(records.status=="active" ? true : false)
       )
       label(for="statusActive" class="form-check-label") Hoạt động
 
@@ -112,11 +83,11 @@ block main
       id="statusInActive"
       name="status"
       value="inactive"
-      checked=(product.status=="inactive" ? true : false)
+      checked=(records.status=="inactive" ? true : false)
     )
     label(for="statusInActive" class="form-check-label") Ngưng hoạt động
     
-    div(class="form=group")
+    div(class="form-group")
       button(
         type="submit"
         class="btn btn-success"

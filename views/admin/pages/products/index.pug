@@ -4,6 +4,7 @@ include ../../mixins/search.pug
 include ../../mixins/pagination.pug
 include ../../mixins/form-change-multi.pug
 include ../../mixins/alert.pug
+include ../../mixins/sort.pug
 
 block main
   +alert(5000)
@@ -18,11 +19,18 @@ block main
         .col-6
           +search(keyword)
 
+  .card.mb-3 
+    .card-header Sắp xếp
+    .card-body
+      .row 
+        .col-4 
+          +sort()
+
 
   .card.mb-3 
     .card-header Danh sách sản phẩm
       .card-body 
-        .row 
+        .row  
           .col-8
             +form-change-multi(`${prefixAdmin}/products/change-multi?_method=PATCH`)
           .col-4 
@@ -30,7 +38,6 @@ block main
               class="btn btn-outline-success") Thêm mới
 
 
-        form-change
         table(class="table table-hover table-sm" checkbox-multi)
           thead
             tr
@@ -52,7 +59,7 @@ block main
                     name="id"
                     value=item.id
                   )
-                td #{index+1}
+                td #{pagination.limitItems*(pagination.currentPage-1)+(index+1)}
                 td 
                   img(src=item.thumbnail alt=item.title width="100px" height="auto")
                 td #{item.title}

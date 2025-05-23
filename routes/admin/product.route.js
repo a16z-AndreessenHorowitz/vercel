@@ -38,6 +38,7 @@ route.get('/edit/:id', controller.edit)
 //patch 
 route.patch('/edit/:id',
   upload.single('thumbnail'),
+  uploadCloud.upload,
   //middle ware
   validate.creatPost,
   controller.editPatch)

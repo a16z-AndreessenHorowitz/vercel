@@ -1,10 +1,15 @@
 
 const Product=require("../../models/product.model")
+const ProductCateGory=require("../../models/product-category.model")
+
 const systemConfig=require("../../config/system")
 
 const filterStatusHeper=require("../../helpers/filterStatus")
 const searchHeper=require("../../helpers/search.js")
 const paginationHelper=require("../../helpers/pagiantion.js")
+const createTreeHelper=require("../../helpers/createTree.js")
+
+
 // [GET] /admin/products
 module.exports.index= async(req, res)=>{
       //Đoạn này bộ lọc
@@ -36,8 +41,21 @@ module.exports.index= async(req, res)=>{
 	}, req.query,countProducts)
 	
 	//Pagination
+
+//Sort
+let sort={}
+if(req.query.sortKey && req.query.sortValue){
+	sort[req.query.sortKey]=req.query.sortValue
+}
+else{
+sort.position="desc"
+}
+
+//End sort
+
+
 	//Models
-    const products = await Product.find(find).sort({position: "desc"}).limit(objectPagiantion.limitItems).skip(objectPagiantion.skip)
+    const products = await Product.find(find).sort(sort).limit(objectPagiantion.limitItems).skip(objectPagiantion.skip)
 
    
 
@@ -49,6 +67,7 @@ module.exports.index= async(req, res)=>{
 		pagination:objectPagiantion
     })
 }
+
 // [PATCH] /admin/products/change-status/:status/:id
 module.exports.changeStatus= async(req,res)=>{
 	const status=req.params.status
@@ -97,7 +116,7 @@ module.exports.changeMulti= async(req,res)=>{
 	res.redirect("back")
 }
 
-// [DELETE] /admin/products/change-status/:status/:
+// [DELETE] /admin/products/delete/:id
 module.exports.deleteItem= async(req,res)=>{
 	const id =req.params.id
 //Xoá cứng, xoá vĩnh viễn
@@ -113,10 +132,18 @@ res.redirect(req.get("Referrer") || "/");
 
 // [GET] /admin/products/create
 module.exports.create=async (req,res)=>{
-res.render("admin/pages/products/create",{
-	pageTitle:"Thêm sản phẩm mới"
-})
+let find={
+	deleted:false,
+}
+const category=await ProductCateGory.find(find)
 
+const newCategory=createTreeHelper.tree(category)
+
+
+res.render("admin/pages/products/create",{
+	pageTitle:"Thêm sản phẩm mới",
+	category: newCategory
+})
 }
 
 
@@ -161,11 +188,18 @@ module.exports.edit=async (req,res)=>{
 			_id:req.params.id
 		}
 		const product=await Product.findOne(find)
+
+		const category=await ProductCateGory.find({
+			deleted:false,
+		})
+		
+		const newCategory=createTreeHelper.tree(category)
+
 	//Chỉ trả ra 1 bản nên dùng find
-		console.log(product)
 		res.render("admin/pages/products/edit.pug",{
 			pageTitle:"Chỉnh sửa phẩm mới",
-			product: product
+			product: product,
+			category:newCategory
 		})
 	} catch (error) {
 		res.redirect(`${systemConfig.prefixAdmin}/products`)
@@ -181,22 +215,17 @@ module.exports.editPatch=async (req,res)=>{
 	 req.body.stock =parseInt(req.body.stock);
 	 req.body.position=parseInt(req.body.position)
 	 
-	 if(req.file){
-		req.body.thumbnail=`/uploads/${req.file.filename}`//express đi vào luôn thư mục public nên không dùng req.path được
-		}
-	 
 		try {
 			await Product.updateOne({_id: req.params.id} , req.body)
 			req.flash('info',`Cập nhật sản phẩm thành công!`)
 		} catch (error) {
 			req.flash('error',`Cập nhật sản phẩm không thành công!`)
-
 		}
 	//flash
 	res.redirect('back')
 }
 
-// [GET] /admin/products/edit/:id
+// [GET] /admin/products/detail/:id
 module.exports.detail=async (req,res)=>{
 
 	// console.log(req.params.id)
@@ -207,7 +236,6 @@ module.exports.detail=async (req,res)=>{
 		}
 		const product=await Product.findOne(find)
 	//Chỉ trả ra 1 bản nên dùng find
-		console.log(product)
 		res.render("admin/pages/products/detail",{
 			pageTitle:product.title,
 			product: product
