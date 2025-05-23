@@ -20,5 +20,13 @@ route.post("/create",
   controller.createPost
 )
 
+route.get("/edit/:id",controller.edit)
+route.patch("/edit/:id",
+  upload.single('avatar'),
+  uploadCloud.upload,
+  validate.editPatch,
+  controller.editPatch
+)
+
 
 module.exports=route

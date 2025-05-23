@@ -39,7 +39,7 @@ module.exports.create=async (req, res)=>{
 
 // [POST] /admin/accounts/create
 module.exports.createPost=async (req, res)=>{
-    const emailExist= await Account.findOne({
+  const emailExist= await Account.findOne({
     email:req.body.email,
     deleted:false
   })
@@ -54,5 +54,54 @@ module.exports.createPost=async (req, res)=>{
   res.redirect(`${systemConfig.prefixAdmin}/accounts`)
   }
   
+}
+
+// [GET] /admin/accounts/edit/:id
+module.exports.edit=async (req, res)=>{
+  let find={
+    _id:req.params.id,
+    deleted:false,
+  }
+  try{
+    const data=await Account.findOne(find)
+    const roles=await Role.find({
+      deleted:false,
+    })
+    res.render("admin/pages/accounts/edit",{
+      pageTitle:"Chỉnh sửa tài khoản",
+      data:data,
+      roles:roles,
+    })
+  }
+  catch(error){
+    res.redirect(`/${systemConfig.prefixAdmin}/accounts`)
+  }
+  
+}
+
+// [PATCH] /admin/accounts/edit/:id
+module.exports.editPatch=async (req, res)=>{
+  const emailExist= await Account.findOne({
+    _id:{
+      $ne:req.params.id //loại trừ id này ra còn lại tìm hết
+    },
+    email:req.body.email,
+    deleted:false
+  })
+  if(emailExist){
+    req.flash("error","Cập nhật tài khoản không thành công")
+
+  }
+  else{
+    if(req.body.password){
+      req.body.password=md5(req.body.password)
+    }else{
+      delete req.body.password
+    }
+    await Account.updateOne({_id:req.params.id},req.body)
+    req.flash("info","Cập nhật tài khoản thành công")
+
+  }
+  res.redirect("back")
 }
 
