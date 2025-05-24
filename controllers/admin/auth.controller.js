@@ -1,13 +1,18 @@
 const Account=require("../../models/account.model.js")
 var md5 = require('md5');
-const systemConfig=require("../../config/system")
+const systemConfig=require("../../config/system");
 
 
 // [GET] /admin/auth
 module.exports.login=async (req, res)=>{
-res.render("admin/pages/auth/login",{
-  pageTitle:"Trang đăng nhập"
+  //Tránh trường hợp đã đăng nhập nhưng cố truy cập trang đăng nhâp
+  if(req.cookies.token){
+    res.redirect(`${systemConfig.prefixAdmin}/dashboard`)
+  }else{
+    res.render("admin/pages/auth/login",{
+    pageTitle:"Trang đăng nhập"
 })
+  }
 }
 // [POST] /admin/auth
 module.exports.loginPost=async (req, res)=>{

@@ -5,7 +5,7 @@ require ( 'dotenv' ) .config ()
 const session = require('express-session');
 const flash = require('express-flash');
 const path=require('path')
-
+const cookieParser = require('cookie-parser');
 
 
 const database=require('./config/database')
@@ -26,7 +26,7 @@ app.use(methodOverride('_method')) //method-override
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
-
+app.use(cookieParser())
 
 app.use(express.static(`${__dirname}/public`));
 
