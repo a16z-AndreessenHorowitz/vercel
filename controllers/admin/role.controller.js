@@ -41,7 +41,7 @@ module.exports.edit=async (req, res)=>{
   }
 
   const data=await Role.findOne(find)
-  console.log(data)
+
 
   res.render("admin/pages/roles/edit",{
       pageTitle:"Tạo nhóm quyền",
@@ -74,7 +74,6 @@ module.exports.permissions=async (req, res)=>{
 
   // [PATCH] /admin/roles/permissions
 module.exports.permissionsPatch=async (req, res)=>{
-  console.log(req.body)
   // chuỗi json biến lại thành mảng
   const permissions=JSON.parse(req.body.permissions)  //lưu theo cái name gửi lên
 

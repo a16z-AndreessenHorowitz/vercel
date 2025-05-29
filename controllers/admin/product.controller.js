@@ -1,7 +1,7 @@
 
 const Product=require("../../models/product.model")
 const ProductCateGory=require("../../models/product-category.model")
-
+const Account=require("../../models/account.model.js")
 const systemConfig=require("../../config/system")
 
 const filterStatusHeper=require("../../helpers/filterStatus")
@@ -57,7 +57,14 @@ sort.position="desc"
 	//Models
     const products = await Product.find(find).sort(sort).limit(objectPagiantion.limitItems).skip(objectPagiantion.skip)
 
-   
+		for(const product of products){
+			const user=await Account.findOne({
+				_id:product.createdBy.account_id
+			})
+			if(user){
+				product.accountFullname=user.fullName
+			}
+		}
 
     res.render("admin/pages/products/index",{
         pageTitle:"Danh sách sản phẩm",
@@ -95,7 +102,14 @@ module.exports.changeMulti= async(req,res)=>{
 			req.flash('info',`Cập nhật trạng thái thành ${ids.length} sản phẩm!`)
 			break;
 		case "delete-all":
-			await Product.updateMany({ _id : { $in: ids }},{deleted:true, deletedAt: new Date() })
+			await Product.updateMany({ _id : { $in: ids }},
+				{	deleted:true, 
+					//deletedAt: new Date(),	
+					deletedBy:{
+						account_id:res.locals.user.id,
+						deletedAt: new Date()	
+					}  
+				})
 			//deletemany xoá nhiều, chúng ta xoá mềm thui
 			req.flash('info',`Đã xoá thành công ${ids.length} sản phẩm!`)
 			break;
@@ -122,7 +136,13 @@ module.exports.deleteItem= async(req,res)=>{
 //Xoá cứng, xoá vĩnh viễn
 	//await Product.deleteOne({ _id: id })   //update one thing
 //Xoá mềm để trường delected=true
-	await Product.updateOne({ _id: id },{ deleted: true , deletedAt: new Date() });
+	await Product.updateOne({ _id: id },
+	{ deleted: true ,
+		deletedBy:{
+			account_id:res.locals.user.id,
+			deletedAt: new Date()	
+		} 
+	});
 
 	req.flash('info',`Đã xoá thành công sản phẩm!`)
 // Chuyển hướng về trang trước đó hoặc trang chủ nếu không có Referrer
@@ -138,7 +158,6 @@ let find={
 const category=await ProductCateGory.find(find)
 
 const newCategory=createTreeHelper.tree(category)
-
 
 res.render("admin/pages/products/create",{
 	pageTitle:"Thêm sản phẩm mới",
@@ -170,7 +189,10 @@ module.exports.createPost=async (req,res)=>{
 	// 	}
 		// chuyển code qua routes r
 	 
-
+	req.body.createdBy={
+		account_id:res.locals.user.id
+	}
+		
 	const product=new Product(req.body)
 	await product.save()
 	//flash

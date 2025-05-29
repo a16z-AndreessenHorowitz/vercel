@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 require ( 'dotenv' ) .config ()
 const session = require('express-session');
 const flash = require('express-flash');
+const moment=require("moment")
 const path=require('path')
 const cookieParser = require('cookie-parser');
 
@@ -48,6 +49,7 @@ app.use(flash());
 
 // app local variables
 app.locals.prefixAdmin = systemConfig.prefixAdmin
+app.locals.moment = moment
 
 
 
